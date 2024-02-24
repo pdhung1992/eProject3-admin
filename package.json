@@ -13,6 +13,7 @@
     "bootstrap-icons": "^1.11.2",
     "dayjs": "^1.11.10",
     "jquerry": "^0.0.1-security",
+    "jquery": "^3.7.1",
     "react": "^18.2.0",
     "react-bootstrap": "^2.9.2",
     "react-chartjs-2": "^5.2.0",

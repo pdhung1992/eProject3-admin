@@ -1,0 +1,24 @@
+
+.auth-page{
+    background-color: #fff;
+}
+
+.auth-img{
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-form{
+    color: #00457c;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-form-content{
+    width: 85%;
+    text-align: center;
+}

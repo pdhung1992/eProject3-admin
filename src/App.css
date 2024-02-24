@@ -1,38 +1,121 @@
-.App {
-  text-align: center;
+
+*{
+  margin: 0;
+  font-family: 'Montserrat', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+a{
+  text-decoration: none;
+  color: #0079c1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.cfm-btn{
+  min-width: 100px;
+  background-color: #00457c;
+  color: #ffffff;
+  border: solid 1px #00457c;
+}
+.cfm-btn:hover{
+  background-color: #ffffff;
+  color: #00457c;
+  border: solid 1px #00457c;
+}
+
+.hero-title {
+  font-weight: 700;
+  font-size: 2.28651rem;
+  color: #181E4B;
+  margin-bottom: 5px;
+  position: relative;
+  z-index: 1;
+}
+
+@media (min-width: 1200px) {
+  .hero-title {
+    font-size: 4.02363rem;
   }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+@media (min-width: 1400px) {
+  .hero-title {
+    font-size: 4.80158rem;
+  }
 }
 
-.App-link {
-  color: #61dafb;
+.hero-title:before {
+  content: '';
+  position: absolute;
+  right: 0.9375rem;
+  top: 2.5rem;
+  width: 20rem;
+  height: 0.8125rem;
+  background-image: url("/public/img/hero/shape.svg");
+  background-size: contain;
+  z-index: -1;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+@media (min-width: 992px) {
+  .hero-title:before {
+    top: 2.8125rem;
   }
-  to {
-    transform: rotate(360deg);
+}
+
+@media (min-width: 1200px) {
+  .hero-title:before {
+    font-size: 4.62363rem;
+    top: 4.1875rem;
+    right: -0.9375rem;
   }
+}
+
+@media (min-width: 1400px) {
+  .hero-title:before {
+    font-size: 5.20158rem;
+    top: 4.6875rem;
+    width: 23.125rem;
+  }
+}
+
+.btn-primary {
+  color: #FFFEFE;
+  background-color: #00457c;
+  border-color: #00457c;
+  min-width: 100px;
+}
+
+.btn-primary:hover {
+  color: #FFFEFE;
+  background-color: #1da1f2;
+  border-color: #1da1f2;
+}
+
+.btn-check:focus + .btn-primary, .btn-primary:focus {
+  color: #FFFEFE;
+  background-color: #cd8c01;
+  border-color: #c18401;
+  -webkit-box-shadow: 0 0 0 0 rgba(243, 178, 39, 0.5);
+  box-shadow: 0 0 0 0 rgba(243, 178, 39, 0.5);
+}
+
+.btn-check:checked + .btn-primary,
+.btn-check:active + .btn-primary, .btn-primary:active, .btn-primary.active,
+.show > .btn-primary.dropdown-toggle {
+  color: #FFFEFE;
+  background-color: #c18401;
+  border-color: #b57c01;
+}
+
+.btn-check:checked + .btn-primary:focus,
+.btn-check:active + .btn-primary:focus, .btn-primary:active:focus, .btn-primary.active:focus,
+.show > .btn-primary.dropdown-toggle:focus {
+  -webkit-box-shadow: 0 0 0 0 rgba(243, 178, 39, 0.5);
+  box-shadow: 0 0 0 0 rgba(243, 178, 39, 0.5);
+}
+
+.btn-primary:disabled, .btn-primary.disabled {
+  color: #FFFEFE;
+  background-color: #00457c;
+  border-color: #00457c;
 }
