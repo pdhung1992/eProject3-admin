@@ -1,0 +1,112 @@
+
+.ant-layout-sider{
+    background-color: rgba(30, 161, 241, 0.1) !important;
+    color: #ffffff;
+    height: 100vh;
+}
+
+.logo-container {
+    height: 10vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1da1f2;
+}
+
+.logo {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+
+.ant-menu{
+    background-color: rgba(30, 161, 241, 0.1);
+    color: #ffffff;
+    height: 90vh;
+    padding: 2vh 0;
+}
+.ant-menu-item {
+    color: #00457c !important;
+    font-size: 16px;
+    display: flex!important;
+    align-items: center !important;
+}
+
+.ant-menu-item-selected{
+    color: #ffffff !important;
+    background-color: #00457c !important;
+}
+
+.menu-icon{
+    font-size: 24px !important;
+    vertical-align: middle;
+}
+
+
+
+.ant-layout-header{
+    background-color: #1da1f2;
+    color: #ffffff;
+    padding: 0;
+    height: 10vh;
+}
+
+.header-content {
+    height: 10vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    overflow: hidden;
+}
+
+.header-avatar {
+    width: 6vh;
+    height: 6vh;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 20px;
+}
+
+.btn-header{
+    color: #ffffff !important;
+    margin-left: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-header .anticon{
+    font-size: 30px !important;
+}
+
+.user-info{
+    margin-right: 10px;
+}
+
+.user-info, .btn-signout{
+    font-size: 16px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.btn-signout {
+    color: #ffffff;
+    margin-right: 50px;
+    border-color: #ffffff;
+}
+
+.btn-signout:hover {
+    color: #ffffff;
+    background-color: #1da1f2;
+    border-color: #ffffff;
+}
+
+.ant-content{
+    background-color: #f0f2f5;
+    height: 100vh;
+}
+
+.admin-content{
+    margin: 2vh 2%;
+}
+

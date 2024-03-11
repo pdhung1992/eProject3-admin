@@ -7,7 +7,7 @@ import {
 
 const initialState = {
     isLoggedIn : false,
-    empData : null,
+    admData : null,
 };
 
 const authReducer = (state = initialState, action) => {
@@ -16,19 +16,19 @@ const authReducer = (state = initialState, action) => {
             return{
                 ...state,
                 isLoggedIn: true,
-                empData: action.payload.empData
+                admData: action.payload.admData
             };
         case LOGIN_FAIL:
             return {
                 ...state,
                 isLoggedIn: false,
-                empData: null
+                admData: null
             };
         case LOGOUT:
             return {
                 ...state,
                 isLoggedIn: false,
-                empData: null
+                admData: null
             }
         default:
             return state;

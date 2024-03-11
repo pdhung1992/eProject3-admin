@@ -5,10 +5,10 @@ import {
     LOGOUT
 } from "./typeActions";
 
-export const loginSuccess = (empData) => {
+export const loginSuccess = (admData) => {
     return{
         type: LOGIN_SUCCESS,
-        payload: {empData}
+        payload: {admData}
     };
 }
 

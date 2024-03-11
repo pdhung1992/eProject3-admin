@@ -1,6 +1,6 @@
 
 .auth-page{
-    background-color: #fff;
+    background-color: #f0f2f5;
 }
 
 .auth-img{
@@ -21,4 +21,9 @@
 .auth-form-content{
     width: 85%;
     text-align: center;
+}
+
+.form-input{
+    background-color: #f0f2f5;
+    border-color: #00457c;
 }
