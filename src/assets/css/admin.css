@@ -2,7 +2,7 @@
 .ant-layout-sider{
     background-color: rgba(30, 161, 241, 0.1) !important;
     color: #ffffff;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 .logo-container {
@@ -22,7 +22,7 @@
 .ant-menu{
     background-color: rgba(30, 161, 241, 0.1);
     color: #ffffff;
-    height: 90vh;
+    min-height: 102vh;
     padding: 2vh 0;
 }
 .ant-menu-item {
@@ -40,6 +40,9 @@
 .menu-icon{
     font-size: 24px !important;
     vertical-align: middle;
+    margin-right: 10px;
+    width: 30px;
+    text-align: center;
 }
 
 
@@ -108,5 +111,15 @@
 
 .admin-content{
     margin: 2vh 2%;
+}
+
+.card-meta{
+    background-color: rgba(30, 161, 241, 0.1);
+    color: #00457c;
+}
+
+.card-meta-title{
+    color: #00457c !important;
+    font-size: 1.5rem !important;
 }
 

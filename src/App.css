@@ -91,9 +91,22 @@ a{
   border-color: #1da1f2;
 }
 
+.btn-cancel {
+  color: #00457c;
+  background-color: #ffc008;
+  border-color: #ffc008;
+  min-width: 100px;
+}
+
+.btn-cancel:hover {
+  color: #00457c;
+  background-color: #ffffff;
+  border-color: #ffc008;
+}
+
 .btn-check:focus + .btn-primary, .btn-primary:focus {
   color: #FFFEFE;
-  background-color: #cd8c01;
+  background-color: #1da1f2;
   border-color: #c18401;
   -webkit-box-shadow: 0 0 0 0 rgba(243, 178, 39, 0.5);
   box-shadow: 0 0 0 0 rgba(243, 178, 39, 0.5);

@@ -1,9 +1,8 @@
-
 import apiServices from "./api";
 
-const getCities = async () => {
+const getAllDistricts = async () => {
     try {
-        const url = '/cities';
+        const url = '/districts';
         const res = await apiServices.get(url);
         return res.data;
     }catch (error){
@@ -17,9 +16,9 @@ const getCities = async () => {
     }
 }
 
-const getCityDetails = async (id) => {
+const getDistrictByCity = async (id) => {
     try {
-        const url = `/cities/${id}`;
+        const url = `/districts/bycity/${id}`;
         const res = await apiServices.get(url);
         return res.data;
     }catch (error){
@@ -31,12 +30,27 @@ const getCityDetails = async (id) => {
             return 'An error occurred';
         }
     }
-
 }
 
-const createCity = async (formData) => {
+const getDistrictDetails = async (id) => {
     try {
-        const url = '/cities/create';
+        const url = `/districts/details/${id}`;
+        const res = await apiServices.get(url);
+        return res.data;
+    }catch (error){
+        if (error.response) {
+            return error.response.data;
+        } else if (error.request) {
+            return 'No response from server';
+        } else {
+            return 'An error occurred';
+        }
+    }
+}
+
+const createDistrict = async (formData) => {
+    try {
+        const url = `/districts/create`;
         const res = await apiServices.post(url, formData);
         return res.data;
     }
@@ -51,13 +65,12 @@ const createCity = async (formData) => {
     }
 }
 
-const updateCity = async (id, formData) => {
+const updateDistrict = async (id, formData) => {
     try {
-        const url = `/cities/update/${id}`;
+        const url = `/districts/update/${id}`;
         const res = await apiServices.post(url, formData);
         return res.data;
-    }
-    catch (error){
+    }catch (error){
         if (error.response) {
             return error.response.data;
         } else if (error.request) {
@@ -68,9 +81,9 @@ const updateCity = async (id, formData) => {
     }
 }
 
-const deleteCity = async (id) => {
+const deleteDistrict = async (id) => {
     try {
-        const url = `/cities/delete/${id}`;
+        const url = `/districts/delete/${id}`;
         const res = await apiServices.delete(url);
         return res.data;
     }
@@ -85,12 +98,13 @@ const deleteCity = async (id) => {
     }
 }
 
-const cityServices = {
-    getCities,
-    getCityDetails,
-    createCity,
-    updateCity,
-    deleteCity
+const districtServices = {
+    getAllDistricts,
+    getDistrictByCity,
+    getDistrictDetails,
+    createDistrict,
+    updateDistrict,
+    deleteDistrict
 }
 
-export default cityServices;
+export default districtServices;

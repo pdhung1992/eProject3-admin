@@ -2,7 +2,7 @@ import {Button, Col, Input, Modal, Row, Space, Table, Upload} from "antd";
 import Swal from "sweetalert2";
 import Search from "antd/es/input/Search";
 import {PlusOutlined} from "@ant-design/icons";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import cityService from "../services/city-service";
 import cityServices from "../services/city-service";
 import {useNavigate} from "react-router-dom";
@@ -11,6 +11,9 @@ import {useNavigate} from "react-router-dom";
 const CitiesManagement = () => {
 
     const navigate = useNavigate();
+    const imgUrl = 'http://localhost:8888/api/images/';
+
+    const [message, setMessage] = useState("");
 
     const columns = [
         {
@@ -27,6 +30,9 @@ const CitiesManagement = () => {
             title: 'Thumbnail',
             dataIndex: 'thumbnail',
             width: "25%",
+            render: (thumbnail) => (
+                <img src={imgUrl+thumbnail} alt={'Thumbnail'} width={'100px'} className={'img-fluid'}/>
+            )
         },
         {
             title: 'Actions',
@@ -34,64 +40,26 @@ const CitiesManagement = () => {
                 <Space style={{ justifyContent: 'center' }}>
                     <Button type="primary" onClick={() => showDetailModal(record.id)}>Details</Button>
                     <Button onClick={() => showEditModal(record.id)}>Edit</Button>
-                    <Button danger onClick={() => handleDelete(record.id)}>Delete</Button>
+                    <Button danger onClick={() => handleDelete(record.id, record.name)}>Delete</Button>
                 </Space>
             ),
             width: "25%",
         }
     ];
 
-    const data = [
-        {
-            id: 1,
-            name: 'Ha Noi',
-            thumbnail: 'xxx'
-        }
-    ]
+    const [cities, setCities] = useState([]);
 
-    //upload
-    const getBase64 = (file) =>
-        new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
-            reader.onerror = (error) => reject(error);
-        });
+    const fetchCities = async () => {
+        const cities = await cityServices.getCities();
+        setCities(cities)
+    }
 
-    const uploadButton = (
-        <button
-            style={{
-                border: 0,
-                background: 'none',
-            }}
-            type="button"
-        >
-            <PlusOutlined />
-            <div
-                style={{
-                    marginTop: 8,
-                }}
-            >
-                Upload
-            </div>
-        </button>
-    );
+    useEffect(() => {
+        fetchCities();
+    }, [])
 
-    const [fileList, setFileList] = useState([]);
+    const data = cities;
 
-    const [previewOpen, setPreviewOpen] = useState(false);
-    const [previewImage, setPreviewImage] = useState('');
-    const [previewTitle, setPreviewTitle] = useState('');
-
-    const handleCancelPreviewThumb = () => setPreviewOpen(false);
-    const handlePreviewThumb = async (file) => {
-        if (!file.url && !file.preview) {
-            file.preview = await getBase64(file.originFileObj);
-        }
-        setPreviewImage(file.url || file.preview);
-        setPreviewOpen(true);
-        setPreviewTitle(file.name || file.url.substring(file.url.lastIndexOf('/') + 1));
-    };
 
     const [openCreate, setOpenCreate] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
@@ -127,20 +95,19 @@ const CitiesManagement = () => {
            formData.append('thumbnail', thumbnail[0])
        }
 
-       console.log(formData)
-
        const fetchNewCity = async () => {
            try {
-               const res = await cityServices.createCity(name, thumbnail);
+               const res = await cityServices.createCity(formData);
                if (res && res.name){
                    Swal.fire({
-                       title: 'Account created Successfully!',
+                       title: 'City created Successfully!',
                        icon: 'success',
                        confirmButtonText: 'OK',
                        confirmButtonColor: '#5ba515'
                    });
                    setOpenCreate(false);
                    navigate('/cities');
+                   fetchCities();
                }
            }catch (e) {
                console.log(e.message)
@@ -148,84 +115,116 @@ const CitiesManagement = () => {
        }
        fetchNewCity();
 
-        // productService.createProduct(formData, axiosConfig)
-        //     .then((response) => {
-        //         setMessage("Success!");
-        //         Swal.fire({
-        //             title: 'Success',
-        //             text: 'Add new Product successfully!',
-        //             icon: 'success',
-        //             confirmButtonText: 'Ok!',
-        //             confirmButtonColor: '#5ba515'
-        //         });
-        //         navigate("/admin/viewproducts");
-        //     })
-        //     .catch((error) => {
-        //         const resMessage =
-        //             (error.response && error.response.data && error.response.data.message) ||
-        //             error.message ||
-        //             error.toString();
-        //         setMessage(resMessage);
-        //     });
     }
 
     const handleCreateCancel = () => {
         setOpenCreate(false);
         setName('');
         setThumbnail([]);
+        const inputImg = document.getElementById('imgInput');
+        if (inputImg) {
+            inputImg.value = '';
+        }
     };
 
+    const [cityDetails, setCityDetails] = useState({});
+
     const showDetailModal = async (id) => {
-        // const detail = await accountServices.accDetails(id, axiosConfig);
-        // setAccDetails(detail);
-        // setOpenDetail(true);
+        const detail = await cityServices.getCityDetails(id);
+        setCityDetails(detail);
+        setOpenDetail(true);
     };
     const handleDetailCancel = () => {
-        // setOpenDetail(false);
+        setOpenDetail(false);
     };
 
     const showEditModal = async (id) => {
-        // const detail = await accountServices.accDetails(id, axiosConfig);
-        // setAccDetails(detail);
-        // setSelectedProvince(accDetails.provinceId);
-        // setSelectedDistrict(accDetails.districtId);
-        // setSelectedBranch(accDetails.postOfficeId);
-        // setOpenEdit(true);
+        const detail = await cityServices.getCityDetails(id);
+        setCityDetails(detail);
+        setOpenEdit(true);
     };
 
-    const handleDelete = async (id) => {
-        // try {
-        //     const result = await Swal.fire({
-        //         title: 'Are you sure?',
-        //         text: 'Account will be removed from your account list!',
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#5ba515',
-        //         cancelButtonColor: '#ee0033',
-        //         confirmButtonText: 'Yes, delete it!',
-        //     });
-        //
-        //     if (result.isConfirmed) {
-        //         await accountServices.deleteAccount(id, axiosConfig);
-        //         setAccounts(accounts.filter((deletedAcc) => deletedAcc.id !== id));
-        //         await Swal.fire({
-        //             title: 'Delete Successfully!',
-        //             text: 'Account removed from your account list!',
-        //             icon: 'success',
-        //             confirmButtonColor: '#5ba515',
-        //         });
-        //     }
-        // } catch (error) {
-        //     console.error(`Error deleting account with ID ${id}:`, error);
-        //     Swal.fire({
-        //         title: 'Delete error!',
-        //         text: 'An error occurred while deleting account!',
-        //         icon: 'error',
-        //         confirmButtonColor: '#ee0033',
-        //     });
-        // }
+    const onEdit = (e) => {
+        const { name, value } = e.target;
+        setCityDetails(prevCity => ({
+            ...prevCity,
+            [name]: value
+        }));
+    }
+
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+
+        const id = cityDetails.id
+
+        const formData = new FormData();
+        formData.append('name', cityDetails.name);
+        if(thumbnail && thumbnail.length > 0){
+            formData.append('thumbnail', thumbnail[0])
+        }
+        const fetchUpdateCity = async () => {
+            try {
+                const res = await cityServices.updateCity(id, formData);
+                if(res && res.name){
+                    setMessage(`City updated successfully!`);
+                    Swal.fire({
+                        title: 'City updated Successfully!',
+                        icon: 'success',
+                        confirmButtonText: 'OK',
+                        confirmButtonColor: '#5ba515'
+                    });
+                    fetchCities();
+                    setOpenEdit(false)
+                }
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchUpdateCity();
     };
-    console.log(thumbnail)
+
+    const handleEditCancel = () => {
+        setOpenEdit(false);
+        setThumbnail([]);
+        const inputImg = document.getElementById('imgInput');
+        if (inputImg) {
+            inputImg.value = '';
+        }
+    };
+
+    const handleDelete = async (id, name) => {
+        try {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: `${name} will be removed from your cities list!`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5ba515',
+                cancelButtonColor: '#ee0033',
+                confirmButtonText: 'Yes, delete it!',
+            });
+
+            if (result.isConfirmed) {
+                await cityServices.deleteCity(id);
+                fetchCities();
+                await Swal.fire({
+                    title: 'Delete Successfully!',
+                    text: `${name} removed from your cities list!`,
+                    icon: 'success',
+                    confirmButtonColor: '#5ba515',
+                });
+            }
+        } catch (error) {
+            console.error(`Error deleting ${name} city:`, error);
+            Swal.fire({
+                title: 'Delete error!',
+                text: 'An error occurred while deleting city!',
+                icon: 'error',
+                confirmButtonColor: '#ee0033',
+            });
+        }
+    };
 
     return(
         <div className={'admin-content'}>
@@ -268,10 +267,10 @@ const CitiesManagement = () => {
                 onCancel={handleCreateCancel}
                 footer={[
                     <Space>
-                        <button key="back" className={'btn btn-primary'} onClick={handleCreateCancel}>
+                        <button key="back" className={'btn btn-cancel'} onClick={handleCreateCancel}>
                             Cancel
                         </button>,
-                        <button className={'btn main-btn'} type={"submit"} onClick={handleCreateCity}>
+                        <button className={'btn btn-primary'} type={"submit"} onClick={handleCreateCity}>
                             Submit
                         </button>,
                     </Space>
@@ -296,6 +295,7 @@ const CitiesManagement = () => {
                             <Col span={16}>
                                 <input
                                     type="file"
+                                    id={'imgInput'}
                                     className="form-control"
                                     placeholder="images"
                                     aria-label="images"
@@ -320,15 +320,106 @@ const CitiesManagement = () => {
                 </form>
             </Modal>
 
+            <Modal
+                open={openDetail}
+                title="Account Details"
+                onCancel={handleDetailCancel}
+                footer={[
+                    <Space>
+                        <button key="back" className={'btn btn-cancel'} onClick={handleDetailCancel}>
+                            Cancel
+                        </button>
+                        ,
+                        <button className={"btn btn-primary"} onClick={() => {
+                            showEditModal(cityDetails.id);
+                            handleDetailCancel();
+                        }}>Edit</button>
+                    </Space>
+                ]}
+            >
+                <hr/>
+                <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+                    <Row>
+                        <Col span={6}>City</Col>
+                        <Col span={18}>{cityDetails.name}</Col>
+                    </Row>
+                    <Row>
+                        <Col span={6}>Thumbnail</Col>
+                        <Col span={18}><img src={`${imgUrl}${cityDetails.thumbnail}`} alt="" className={'img-fluid'}/></Col>
+                    </Row>
+                </Space>
+            </Modal>
 
-            <Modal open={previewOpen} title={previewTitle} footer={null} onCancel={handleCancelPreviewThumb}>
-                <img
-                    alt="example"
-                    style={{
-                        width: '100%',
-                    }}
-                    src={previewImage}
-                />
+            <Modal
+                open={openEdit}
+                title="Edit Account"
+                onCancel={handleEditCancel}
+                footer={[
+                    <Space>
+                        <button key="back" className={'btn btn-primary'} onClick={handleEditCancel}>
+                            Cancel
+                        </button>,
+                        <button className={'btn main-btn'} type={"submit"} onClick={handleEditSubmit}>
+                            Submit
+                        </button>,
+                    </Space>
+                ]}
+            >
+                <hr/>
+                <form>
+                    <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
+                        <Row>
+                            <Col span={8}>City name</Col>
+                            <Col span={16}>
+                                <Input placeholder='Enter City name...'
+                                       name='name'
+                                       value={cityDetails.name}
+                                       onChange={onEdit}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={8}>Thumbnail</Col>
+                            <Col span={16}>
+                                <input
+                                    type="file"
+                                    id={'imgInput'}
+                                    className="form-control"
+                                    placeholder="images"
+                                    aria-label="images"
+                                    name="thumbnail"
+                                    onChange={onChangeThumbnail}
+                                />
+                                <div className="preview-images text-center">
+                                    {thumbnail.length !== 0 ? (
+                                        thumbnail.map((image, index) => (
+                                            <img
+                                                key={index}
+                                                src={URL.createObjectURL(image)}
+                                                alt={`Preview ${index}`}
+                                                className="preview-image"
+                                                width="50%"
+                                                style={{
+                                                    margin: '15px',
+                                                    border: 'solid 1px #5ba515',
+                                                    borderRadius: '5%'
+                                                }}
+                                            />
+                                        ))
+                                    ) : (
+                                        <img
+                                            src={imgUrl + cityDetails.thumbnail}
+                                            alt={`Preview thumbnail`}
+                                            className="preview-image"
+                                            width="50%"
+                                            style={{margin: '15px', border: 'solid 1px #5ba515', borderRadius: '5%'}}
+                                        />
+                                    )}
+                                </div>
+                            </Col>
+                        </Row>
+                    </Space>
+                </form>
             </Modal>
         </div>
     )

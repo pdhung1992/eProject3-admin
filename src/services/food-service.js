@@ -1,9 +1,8 @@
-
 import apiServices from "./api";
 
-const getCities = async () => {
+const getFoodByRestaurant = async (id) => {
     try {
-        const url = '/cities';
+        const url = `/foods/restaurant/${id}`;
         const res = await apiServices.get(url);
         return res.data;
     }catch (error){
@@ -17,9 +16,9 @@ const getCities = async () => {
     }
 }
 
-const getCityDetails = async (id) => {
+const getFoodByTypeAndServe = async (rId, tId, sId) => {
     try {
-        const url = `/cities/${id}`;
+        const url = `/foods/restaurant/${rId}/type/${tId}/serve/${sId}`;
         const res = await apiServices.get(url);
         return res.data;
     }catch (error){
@@ -31,16 +30,14 @@ const getCityDetails = async (id) => {
             return 'An error occurred';
         }
     }
-
 }
 
-const createCity = async (formData) => {
+const getFoodDetails = async (id) => {
     try {
-        const url = '/cities/create';
-        const res = await apiServices.post(url, formData);
+        const url = `/foods/details/${id}`;
+        const res = await apiServices.get(url);
         return res.data;
-    }
-    catch (error){
+    }catch (error){
         if (error.response) {
             return error.response.data;
         } else if (error.request) {
@@ -51,13 +48,12 @@ const createCity = async (formData) => {
     }
 }
 
-const updateCity = async (id, formData) => {
+const createFood = async (formData, axiosConfig) => {
     try {
-        const url = `/cities/update/${id}`;
-        const res = await apiServices.post(url, formData);
+        const url = `/foods/create`;
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
-    }
-    catch (error){
+    }catch (error){
         if (error.response) {
             return error.response.data;
         } else if (error.request) {
@@ -68,13 +64,12 @@ const updateCity = async (id, formData) => {
     }
 }
 
-const deleteCity = async (id) => {
+const updateFood = async (id, formData, axiosConfig) => {
     try {
-        const url = `/cities/delete/${id}`;
-        const res = await apiServices.delete(url);
+        const url = `/foods/update/${id}`;
+        const res = await apiServices.put(url, formData, axiosConfig);
         return res.data;
-    }
-    catch (error){
+    }catch (error){
         if (error.response) {
             return error.response.data;
         } else if (error.request) {
@@ -85,12 +80,29 @@ const deleteCity = async (id) => {
     }
 }
 
-const cityServices = {
-    getCities,
-    getCityDetails,
-    createCity,
-    updateCity,
-    deleteCity
+const deleteFood = async (id, axiosConfig) => {
+    try {
+        const url = `/foods/delete/${id}`;
+        const res = await apiServices.delete(url, axiosConfig);
+        return res.data;
+    }catch (error){
+        if (error.response) {
+            return error.response.data;
+        } else if (error.request) {
+            return 'No response from server';
+        } else {
+            return 'An error occurred';
+        }
+    }
 }
 
-export default cityServices;
+const foodServices = {
+    getFoodByRestaurant,
+    getFoodByTypeAndServe,
+    getFoodDetails,
+    createFood,
+    updateFood,
+    deleteFood
+}
+
+export default foodServices;

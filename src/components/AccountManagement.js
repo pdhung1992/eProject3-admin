@@ -1,4 +1,4 @@
-import {Button, Col, Dropdown, Input, Menu, Modal, Row, Select, Space, Table} from "antd";
+import {Button, Col, Dropdown, Input, Menu, Modal, Row, Select, Space, Table, TimePicker} from "antd";
 import {DownOutlined, PlusOutlined} from "@ant-design/icons";
 import {useNavigate} from "react-router-dom";
 import {useEffect, useState} from "react";
@@ -7,6 +7,10 @@ import accountServices from "../services/account-service";
 import roleServices from "../services/role-service";
 import Swal from "sweetalert2";
 import {useSelector} from "react-redux";
+import TextArea from "antd/es/input/TextArea";
+import categoryServices from "../services/category-service";
+import cityServices from "../services/city-service";
+import districtServices from "../services/district-services";
 
 
 const AccountManagement = () => {
@@ -101,7 +105,6 @@ const AccountManagement = () => {
         "password": '',
         "passwordCfm": '',
         "roleId": 0,
-        "postOfficeId": 0
     };
     const [newAcc, setNewAcc] = useState(initAcc);
 
@@ -130,6 +133,99 @@ const AccountManagement = () => {
         setSelectedRole(selectedId);
     }
 
+    const [categories, setCategories] = useState([])
+    const [cities, setCities] = useState([]);
+    const [districts, setDistricts] = useState([]);
+
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [selectedDistrict, setSelectedDistrict] = useState('');
+    const [selectedCity, setSelectedCity] = useState('');
+
+    const [thumbnail, setThumbnail] = useState([]);
+    const [banner, setBanner] = useState([]);
+
+    const initRes = {
+        "name": '',
+        "address": '',
+        "description": '',
+        "minimumDelivery": '',
+    };
+    const [newRes, setNewRes] = useState(initRes);
+
+    const onChangeNewRes = (e) => {
+        const {name, value} = e.target;
+        setNewRes(prevRes => ({
+            ...prevRes, [name]: value
+        }));
+    }
+
+    const handleCatChange = (selectedId) => {
+        setSelectedCategory(selectedId);
+    }
+
+
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const res = await categoryServices.getAllCategories();
+            setCategories(res);
+        }
+        const fetchCities = async () => {
+            const res = await cityServices.getCities();
+            setCities(res)
+        }
+
+        fetchCategories();
+        fetchCities();
+    }, [])
+
+
+    const handleCityChange = async (selectedId) => {
+        setSelectedCity(selectedId);
+        setSelectedDistrict('');
+        const data = await districtServices.getDistrictByCity(selectedId);
+        setDistricts(data);
+    }
+
+
+    useEffect(() => {
+        const fetchDistricts = async () => {
+            if (selectedCity) {
+                setDistricts([]);
+                const data = await districtServices.getDistrictByCity(selectedCity);
+                setDistricts(data);
+            }
+        };
+        fetchDistricts();
+    }, [selectedCity]);
+
+
+    const handleDistChange = async (selectedId) => {
+        setSelectedDistrict(selectedId);
+    };
+
+    const [dlvHours, setDlvHours] = useState('');
+    const onChangeDlvTime = (time, timeString) => {
+        const hours = timeString[0] + ' - ' + timeString[1];
+        setDlvHours(hours);
+    };
+
+    const onChangeThumbnail = (e) => {
+        const files = Array.from(e.target.files);
+
+        const thumbnailFiles = files.filter(file => file.type.startsWith('image'));
+
+        setThumbnail(thumbnailFiles);
+    };
+
+    const onChangeBanner = (e) => {
+        const files = Array.from(e.target.files);
+
+        const bannerFiles = files.filter(file => file.type.startsWith('image'));
+
+        setBanner(bannerFiles);
+    };
+
     const handleCreateSubmit = (e) => {
         e.preventDefault();
 
@@ -140,12 +236,33 @@ const AccountManagement = () => {
             const password = newAcc.password;
             const telephone = newAcc.telephone;
             const roleId = selectedRole;
-            const formData = {fullname, username, email, telephone, password, roleId};
+            // const formData = {fullname, username, email, telephone, password, roleId};
 
-            console.log(formData);
+            const formData = new FormData();
+            formData.append('userName', newAcc.username);
+            formData.append('fullname', newAcc.fullname);
+            formData.append('email', newAcc.email);
+            formData.append('password', newAcc.password);
+            formData.append('telephone', newAcc.telephone);
+            formData.append('roleId', selectedRole);
+            formData.append('resName', newRes.name);
+            formData.append('resAddress', newRes.address);
+            formData.append('resDescription', newRes.description);
+            formData.append('resDeliveryHours', dlvHours);
+            formData.append('resMinimumDelivery', newRes.minimumDelivery);
+            formData.append('resCatId', selectedCategory);
+            formData.append('resDistrictId', selectedDistrict);
+            if(thumbnail && thumbnail.length > 0){
+                formData.append('resThumbnail', thumbnail[0])
+            }
+            if(banner && banner.length > 0){
+                formData.append('resBanner', banner[0])
+            }
+
             const fetchNewAcc = async () => {
                 try {
                     const res = await accountServices.createAccount(formData);
+                    console.log(res)
                     if(res && res.username){
                         setMessage("Account created successfully!");
                         Swal.fire({
@@ -156,7 +273,9 @@ const AccountManagement = () => {
                         });
                         setOpenCreate(false);
                         fetchAccount();
-                        navigate('/acc-management');
+                        setNewAcc(initAcc);
+                        setSelectedRole('');
+                        navigate('/accounts');
                     }
                 } catch (error) {
                     console.error(error);
@@ -170,29 +289,28 @@ const AccountManagement = () => {
     }
     const handleCreateCancel = () => {
         setOpenCreate(false);
-        // setName('');
-        // setThumbnail([]);
+        setNewAcc(initAcc);
     };
 
     const [accDetails, setAccDetails] = useState({});
 
+
     const showDetailModal = async (id) => {
-        const detail = await accountServices.accDetails(id, axiosConfig);
+        const detail = await accountServices.getAccDetails(id);
         setAccDetails(detail);
         setOpenDetail(true);
     };
     const handleDetailCancel = () => {
-        // setOpenDetail(false);
+        setOpenDetail(false);
     };
 
     const showEditModal = async (id) => {
-        // const detail = await accountServices.accDetails(id, axiosConfig);
-        // setAccDetails(detail);
-        // setSelectedProvince(accDetails.provinceId);
-        // setSelectedDistrict(accDetails.districtId);
-        // setSelectedBranch(accDetails.postOfficeId);
-        // setOpenEdit(true);
+        const detail = await accountServices.getAccDetails(id);
+        setAccDetails(detail);
+        setSelectedRole(detail.roleId)
+        setOpenEdit(true);
     };
+
 
     const onChangeEdit = (e) => {
         const {name, value} = e.target;
@@ -205,17 +323,18 @@ const AccountManagement = () => {
         e.preventDefault();
 
         const id = accDetails.id;
-        const username = '';
-        const password = '';
         const fullname = accDetails.fullname;
         const email = accDetails.email;
+        const telephone = accDetails.telephone;
         const roleId = selectedRole !== '' ? selectedRole : accDetails.roleId;
 
-        const formData = {fullname, email, roleId, username, password};
+        const formData = {fullname, email, roleId, telephone};
+
         const fetchUpdateAcc = async () => {
             try {
-                const res = await accountServices.updateAcc(id, formData, axiosConfig);
-                if(res && res.fullname){
+                const res = await accountServices.updateAccount(id, formData);
+                console.log(res)
+                if(res && res.fullName){
                     setMessage("Account updated successfully!");
                     Swal.fire({
                         title: 'Account updated Successfully!',
@@ -238,36 +357,36 @@ const AccountManagement = () => {
     };
 
     const handleDelete = async (id) => {
-        // try {
-        //     const result = await Swal.fire({
-        //         title: 'Are you sure?',
-        //         text: 'Account will be removed from your account list!',
-        //         icon: 'warning',
-        //         showCancelButton: true,
-        //         confirmButtonColor: '#5ba515',
-        //         cancelButtonColor: '#ee0033',
-        //         confirmButtonText: 'Yes, delete it!',
-        //     });
-        //
-        //     if (result.isConfirmed) {
-        //         await accountServices.deleteAccount(id, axiosConfig);
-        //         setAccounts(accounts.filter((deletedAcc) => deletedAcc.id !== id));
-        //         await Swal.fire({
-        //             title: 'Delete Successfully!',
-        //             text: 'Account removed from your account list!',
-        //             icon: 'success',
-        //             confirmButtonColor: '#5ba515',
-        //         });
-        //     }
-        // } catch (error) {
-        //     console.error(`Error deleting account with ID ${id}:`, error);
-        //     Swal.fire({
-        //         title: 'Delete error!',
-        //         text: 'An error occurred while deleting account!',
-        //         icon: 'error',
-        //         confirmButtonColor: '#ee0033',
-        //     });
-        // }
+        try {
+            const result = await Swal.fire({
+                title: 'Are you sure?',
+                text: 'Account will be removed from your accounts list!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#5ba515',
+                cancelButtonColor: '#ee0033',
+                confirmButtonText: 'Yes, delete it!',
+            });
+
+            if (result.isConfirmed) {
+                await accountServices.deleteAccount(id);
+                fetchAccount();
+                await Swal.fire({
+                    title: 'Delete Successfully!',
+                    text: 'Account removed from your account list!',
+                    icon: 'success',
+                    confirmButtonColor: '#5ba515',
+                });
+            }
+        } catch (error) {
+            console.error(`Error deleting account with ID ${id}:`, error);
+            Swal.fire({
+                title: 'Delete error!',
+                text: 'An error occurred while deleting account!',
+                icon: 'error',
+                confirmButtonColor: '#ee0033',
+            });
+        }
     };
 
     return(
@@ -307,7 +426,7 @@ const AccountManagement = () => {
 
             <Modal
                 open={openCreate}
-                title="Create new City"
+                title="Create new Account"
                 onCancel={handleCreateCancel}
                 footer={[
                     <Space>
@@ -321,7 +440,7 @@ const AccountManagement = () => {
                 ]}
             >
                 <hr/>
-                <form>
+                <form encType='multipart/form-data'>
                     <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
                         <Row>
                             <Col span={8}>Username</Col>
@@ -348,7 +467,7 @@ const AccountManagement = () => {
                         <Row>
                             <Col span={8}>Email</Col>
                             <Col span={16}>
-                                <input placeholder='Enter Userame...'
+                                <input placeholder='Enter Email...'
                                        type={'email'}
                                        className={'form-control'}
                                        name='email'
@@ -371,7 +490,7 @@ const AccountManagement = () => {
                         <Row>
                             <Col span={8}>Password</Col>
                             <Col span={16}>
-                                <input placeholder='Enter Userame...'
+                                <input placeholder='Enter Password...'
                                        className={'form-control'}
                                        type={'password'}
                                        name='password'
@@ -407,19 +526,235 @@ const AccountManagement = () => {
                                         label: 'Select role',
                                         key: 'select-role'
                                     },
-                                    ...roles.map(role => (
+                                    ...(Array.isArray(roles) ? roles.map(role => (
                                         {
                                             value: role.id,
                                             label: role.name,
                                             key: `role-${role.id}`
                                         }
-                                    ))
+                                    )) : [])
                                 ]
                             }
                                 onChange={(selectedValue) => handleRoleChange(selectedValue)}
                                 />
                             </Col>
                         </Row>
+                        {selectedRole === 2 ? (
+                            <Space direction={"vertical"}>
+                                <Row>
+                                    <Col span={8}>Restaurant name</Col>
+                                    <Col span={16}>
+                                        <Input placeholder='Enter Restaurant name...'
+                                               name='name'
+                                               value={newRes.name}
+                                               onChange={onChangeNewRes}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Category</Col>
+                                    <Col span={16}>
+                                        <Select
+                                            defaultValue={selectedCategory}
+                                            style={{width: "100%"}}
+                                            options={
+                                                [
+                                                    {
+                                                        value: '',
+                                                        label: 'Select Category',
+                                                        key: 'select-cat'
+                                                    },
+                                                    ...(Array.isArray(categories) ? (categories.map(cat => (
+                                                        {
+                                                            value: cat.id,
+                                                            label: cat.name,
+                                                            key: `cat-${cat.id}`
+                                                        }
+                                                    ))) : [])
+                                                ]
+                                            }
+                                            onChange={(selectedValue) => handleCatChange(selectedValue)}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>
+                                        <Row>
+                                            <Col span={12}>Address</Col>
+                                            <Col span={12}>City</Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Select
+                                            defaultValue={selectedCity}
+                                            style={{width: "100%"}}
+                                            options={
+                                                [
+                                                    {
+                                                        value: '',
+                                                        label: 'Select city',
+                                                        key: 'select-city'
+                                                    },
+                                                    ...(Array.isArray(cities) ? (cities.map(city => (
+                                                        {
+                                                            value: city.id,
+                                                            label: city.name,
+                                                            key: `city-${city.id}`
+                                                        }
+                                                    ))) : [])
+                                                ]
+                                            }
+                                            onChange={(selectedValue) => handleCityChange(selectedValue)}
+                                        />
+                                    </Col>
+                                    <Col span={8}>
+                                        <Row className={'py-2'}>
+                                            <Col span={12}></Col>
+                                            <Col span={12} >District</Col>
+                                        </Row>
+                                    </Col>
+                                    <Col className={'py-2'} span={16}>
+                                        <Select
+                                            defaultValue={selectedDistrict}
+                                            style={{width: "100%"}}
+                                            options={
+                                                [
+                                                    {
+                                                        value: '',
+                                                        label: 'Select District',
+                                                        key: 'select-dist'
+                                                    },
+                                                    ...(Array.isArray(districts) ? (districts.map(dist => (
+                                                        {
+                                                            value: dist.id,
+                                                            label: dist.name,
+                                                            key: `dist-${dist.id}`
+                                                        }
+                                                    ))) : [])
+                                                ]
+                                            }
+                                            onChange={(selectedValue) => handleDistChange(selectedValue)}
+                                        />
+                                    </Col>
+                                    <Col span={8} className={'py-2'}>
+                                        <Row>
+                                            <Col span={12}></Col>
+                                            <Col span={12}>Address</Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={16} className={'py-2'}>
+                                        <Input placeholder='Enter Address...'
+                                               name='address'
+                                               rows={3}
+                                               value={newRes.address}
+                                               onChange={onChangeNewRes}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Description</Col>
+                                    <Col span={16}>
+                                        <TextArea placeholder='Enter Description...'
+                                                  rows={3}
+                                                  name='description'
+                                                  value={newRes.description}
+                                                  onChange={onChangeNewRes}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Delivery Hours</Col>
+                                    <Col span={16}>
+                                        {/*<Input placeholder='Enter City name...'*/}
+                                        {/*       name='deliveryHours'*/}
+                                        {/*       value={restaurant.deliveryHours}*/}
+                                        {/*       onChange={onEdit}*/}
+                                        {/*/>*/}
+                                        <TimePicker.RangePicker use12Hours format="h A" onChange={onChangeDlvTime}/>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Minimum Delivery</Col>
+                                    <Col span={16}>
+                                        <Input placeholder='Enter City name...'
+                                               name='minimumDelivery'
+                                               value={newRes.minimumDelivery}
+                                               onChange={onChangeNewRes}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Thumbnail</Col>
+                                    <Col span={16}>
+                                        <input
+                                            type="file"
+                                            id={'thumbInput'}
+                                            className="form-control"
+                                            placeholder="images"
+                                            aria-label="images"
+                                            name="thumbnail"
+                                            onChange={onChangeThumbnail}
+                                        />
+                                        <div className="preview-images text-center">
+                                            {thumbnail.length !== 0 ? (
+                                                thumbnail.map((image, index) => (
+                                                    <img
+                                                        key={index}
+                                                        src={URL.createObjectURL(image)}
+                                                        alt={`Preview ${index}`}
+                                                        className="preview-image"
+                                                        width="50%"
+                                                        style={{
+                                                            margin: '15px',
+                                                            border: 'solid 1px #5ba515',
+                                                            borderRadius: '5%'
+                                                        }}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </div>
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Banner</Col>
+                                    <Col span={16}>
+                                        <input
+                                            type="file"
+                                            id={'bannerInput'}
+                                            className="form-control"
+                                            placeholder="images"
+                                            aria-label="images"
+                                            name="banner"
+                                            onChange={onChangeBanner}
+                                        />
+                                        <div className="preview-images text-center">
+                                            {banner.length !== 0 ? (
+                                                banner.map((image, index) => (
+                                                    <img
+                                                        key={index}
+                                                        src={URL.createObjectURL(image)}
+                                                        alt={`Preview ${index}`}
+                                                        className="preview-image"
+                                                        width="50%"
+                                                        style={{
+                                                            margin: '15px',
+                                                            border: 'solid 1px #5ba515',
+                                                            borderRadius: '5%'
+                                                        }}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </Space>
+                        ) : (
+                            <></>
+                        )}
                     </Space>
                 </form>
             </Modal>
@@ -456,10 +791,6 @@ const AccountManagement = () => {
                     <Row>
                         <Col span={6}>Role</Col>
                         <Col span={18}>{accDetails.role}</Col>
-                    </Row>
-                    <Row>
-                        <Col span={6}>Branch</Col>
-                        <Col span={18}>{accDetails.postOffice}</Col>
                     </Row>
                 </Space>
             </Modal>
@@ -516,33 +847,47 @@ const AccountManagement = () => {
                             </Col>
                         </Row>
                         <Row>
-                            <Col span={8}>Role</Col>
+                            <Col span={8}>Email</Col>
                             <Col span={16}>
                                 <Space direction="vertical" size="middle" style={{ display: 'flex' }}>
-                                    <Select
-                                        defaultValue={accDetails.roleId}
-                                        style={{width: "100%"}}
-                                        options={
-                                            [
-                                                {
-                                                    value: '',
-                                                    label: 'Select role',
-                                                    key: 'select-role'
-                                                },
-                                                ...roles.map(role => (
-                                                    {
-                                                        value: role.id,
-                                                        label: role.name,
-                                                        key: `role-${role.id}`
-                                                    }
-                                                ))
-                                            ]
-                                        }
-                                        onChange={(selectedValue) => handleRoleChange(selectedValue)}
+                                    <Input placeholder='Enter Telephone...'
+                                           type="text"
+                                           name='telephone'
+                                           value={accDetails.telephone}
+                                           onChange={onChangeEdit}
                                     />
                                 </Space>
                             </Col>
                         </Row>
+                        {/*<Row>*/}
+                        {/*    <Col span={8}>Role</Col>*/}
+                        {/*    <Col span={16}>*/}
+                        {/*        <Space direction="vertical" size="middle" style={{ display: 'flex' }}>*/}
+                        {/*            <Select*/}
+                        {/*                defaultValue={selectedRole}*/}
+                        {/*                style={{width: "100%"}}*/}
+                        {/*                disabled*/}
+                        {/*                options={*/}
+                        {/*                    [*/}
+                        {/*                        {*/}
+                        {/*                            value: '',*/}
+                        {/*                            label: 'Select role',*/}
+                        {/*                            key: 'select-role'*/}
+                        {/*                        },*/}
+                        {/*                        ...(Array.isArray(roles) ? roles.map(role => (*/}
+                        {/*                            {*/}
+                        {/*                                value: role.id,*/}
+                        {/*                                label: role.name,*/}
+                        {/*                                key: `role-${role.id}`*/}
+                        {/*                            }*/}
+                        {/*                        )) : [])*/}
+                        {/*                    ]*/}
+                        {/*                }*/}
+                        {/*                onChange={(selectedValue) => handleRoleChange(selectedValue)}*/}
+                        {/*            />*/}
+                        {/*        </Space>*/}
+                        {/*    </Col>*/}
+                        {/*</Row>*/}
                     </Space>
                 </form>
             </Modal>
