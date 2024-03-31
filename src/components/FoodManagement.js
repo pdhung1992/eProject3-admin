@@ -89,7 +89,8 @@ const FoodManagement = () => {
         }
     ];
 
-    const [foods, setFoods] = useState([])
+    const [foods, setFoods] = useState([]);
+    const [filteredFoods, setFilteredFoods] = useState(foods);
 
     const fetchFoods = async (id) => {
         const foods = await foodServices.getFoodByRestaurant(id);
@@ -119,7 +120,43 @@ const FoodManagement = () => {
         fetchServeTypes();
     }, [])
 
-    const data = foods;
+    useEffect(() => {
+        setFilteredFoods(foods)
+    }, [foods]);
+
+    const onSearchFood = (e) => {
+        const keyword = e.target.value.trim().toLowerCase().replace(/\s/g, '');
+        const filtered = foods.filter(food => food.name && food.name.trim().toLowerCase().includes(keyword));
+        setFilteredFoods(filtered);
+    }
+
+
+    const onFilterByServe = (id) => {
+        const filtered = foods.filter(food => food.serveID === id);
+        setFilteredFoods(filtered);
+        setSelectedServeType(id)
+        setSelectedType('');
+        setSelectedTag('')
+    };
+
+    const onFilterByType = (id) => {
+        const filtered = foods.filter(food => food.typeId === id);
+        setFilteredFoods(filtered);
+        setSelectedType(id);
+        setSelectedServeType('');
+        setSelectedTag('')
+    };
+
+    const onFilterByTag = (id) => {
+        const filtered = foods.filter(food => food.foodTagId === id);
+        setFilteredFoods(filtered);
+        setSelectedTag(id);
+        setSelectedServeType('');
+        setSelectedType('')
+    };
+
+
+    const data = filteredFoods;
 
     const [openCreate, setOpenCreate] = useState(false);
     const [openDetail, setOpenDetail] = useState(false);
@@ -255,8 +292,6 @@ const FoodManagement = () => {
 
         const id = foodDetails.id
 
-        console.log(selectedType)
-
         const formData = new FormData();
         formData.append('name', foodDetails.name);
         formData.append('description', foodDetails.description);
@@ -336,18 +371,84 @@ const FoodManagement = () => {
             <h2>Food Management</h2>
             <hr/>
             <Row gutter={[16, 16]} justify="center">
-                <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8}>
+                <Col span={6}>
                     <Input
                         size={"large"}
                         placeholder="Enter Food name to find..."
                         allowClear
-                        // onSearch={onSearchAcc}
+                        onChange={onSearchFood}
                     />
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8} style={{textAlign: 'center'}}>
-
+                <Col span={12} className={'d-flex justify-content-around align-items-center'}>
+                    <h6 style={{width: '100%'}} className={'text-center'}>Filter by: </h6>
+                    <Select size={"large"}
+                            value={selectedServeType}
+                            style={{width: '100%'}}
+                            className={'px-1'}
+                            options={
+                                [
+                                    {
+                                        value: '',
+                                        label: 'Select Type of table',
+                                        key: 'select-type'
+                                    },
+                                    ...(Array.isArray(serveTypes) ? serveTypes.map(type => (
+                                        {
+                                            value: type.id,
+                                            label: type.name,
+                                            key: `type-${type.id}`
+                                        }
+                                    )) : [])
+                                ]
+                            }
+                            onChange={(selectedValue) => onFilterByServe(selectedValue)}
+                    />
+                    <Select size={"large"}
+                            value={selectedType}
+                            style={{width: '100%'}}
+                            className={'px-1'}
+                            options={
+                                [
+                                    {
+                                        value: '',
+                                        label: 'Select Type',
+                                        key: 'select-type'
+                                    },
+                                    ...(Array.isArray(types) ? types.map(type => (
+                                        {
+                                            value: type.id,
+                                            label: type.name,
+                                            key: `type-${type.id}`
+                                        }
+                                    )) : [])
+                                ]
+                            }
+                            onChange={(selectedId) => onFilterByType(selectedId)}
+                    />
+                    <Select size={"large"}
+                            value={selectedTag}
+                            style={{width: '100%'}}
+                            className={'px-1'}
+                            options={
+                                [
+                                    {
+                                        value: '',
+                                        label: 'Select Tag',
+                                        key: 'select-tag'
+                                    },
+                                    ...(Array.isArray(tags) ? tags.map(tag => (
+                                        {
+                                            value: tag.id,
+                                            label: tag.name,
+                                            key: `tag-${tag.id}`
+                                        }
+                                    )) : [])
+                                ]
+                            }
+                            onChange={(selectedId) => onFilterByTag(selectedId)}
+                    />
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8} style={{textAlign: 'end'}}>
+                <Col span={6} style={{textAlign: 'end'}}>
                     <button className={'btn btn-primary'} onClick={showCreateModal}>
                         <PlusOutlined/> Create new Food
                     </button>

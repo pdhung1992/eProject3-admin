@@ -22,9 +22,20 @@ const logOut = async () => {
     await sessionStorage.removeItem('admin')
 }
 
+const changePassword = async (formData, axiosConfig) => {
+    try {
+        const url = 'auth/changepassword/admin';
+        const res = await apiServices.post(url, formData, axiosConfig);
+        return res.data;
+    }catch (e) {
+        return e.message;
+    }
+}
+
 const authServices = {
     login,
-    logOut
+    logOut,
+    changePassword
 }
 
 export default authServices;

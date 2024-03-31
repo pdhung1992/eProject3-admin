@@ -6,9 +6,21 @@ import {useEffect, useState} from "react";
 import cityService from "../services/city-service";
 import cityServices from "../services/city-service";
 import {useNavigate} from "react-router-dom";
+import {useSelector} from "react-redux";
 
 
 const CitiesManagement = () => {
+
+    const admin = useSelector(state => state.auth);
+
+    const token = admin.admData.token;
+
+    const axiosConfig = {
+        headers: {
+            Authorization: "Bearer " + token,
+        },
+        credentials: "true"
+    }
 
     const navigate = useNavigate();
     const imgUrl = 'http://localhost:8888/api/images/';
@@ -97,7 +109,7 @@ const CitiesManagement = () => {
 
        const fetchNewCity = async () => {
            try {
-               const res = await cityServices.createCity(formData);
+               const res = await cityServices.createCity(formData, axiosConfig);
                if (res && res.name){
                    Swal.fire({
                        title: 'City created Successfully!',
@@ -165,7 +177,7 @@ const CitiesManagement = () => {
         }
         const fetchUpdateCity = async () => {
             try {
-                const res = await cityServices.updateCity(id, formData);
+                const res = await cityServices.updateCity(id, formData, axiosConfig);
                 if(res && res.name){
                     setMessage(`City updated successfully!`);
                     Swal.fire({
@@ -206,7 +218,7 @@ const CitiesManagement = () => {
             });
 
             if (result.isConfirmed) {
-                await cityServices.deleteCity(id);
+                await cityServices.deleteCity(id, axiosConfig);
                 fetchCities();
                 await Swal.fire({
                     title: 'Delete Successfully!',

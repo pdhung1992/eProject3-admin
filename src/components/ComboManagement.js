@@ -1,10 +1,13 @@
 import {Link, useNavigate} from "react-router-dom";
 import React, {useEffect, useState} from "react";
-import {Button, Col, Input, Modal, Row, Space, Table, Tag} from "antd";
+import {Button, Col, Input, Modal, Row, Select, Space, Table, Tag} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import {useSelector} from "react-redux";
 import comboServices from "../services/combo-service";
 import Swal from "sweetalert2";
+import foodTagServices from "../services/foodtag-service";
+import foodTypeServices from "../services/foodtype-service";
+import tableTypeServices from "../services/tabletype-service";
 
 
 
@@ -68,7 +71,11 @@ const ComboManagement = () => {
             render: (_text, record) => (
                 <Space style={{justifyContent: 'center'}}>
                     <Button type="primary" onClick={() => showDetailModal(record.id)}>Details</Button>
-                    <Button>Edit</Button>
+                    <Link to={`edit/${record.id}`}>
+                        <Button>
+                            Edit
+                        </Button>
+                    </Link>
                     <Button danger onClick={() => handleDelete(record.id, record.name)}>Delete</Button>
                 </Space>
             ),
@@ -76,7 +83,21 @@ const ComboManagement = () => {
         }
     ];
 
-    const [combos, setCombos] = useState([])
+    const [combos, setCombos] = useState([]);
+    const [filteredCombos, setFilteredCombos] = useState(combos);
+
+    const [tags, setTags] = useState([]);
+    const [serveTypes, setServeTypes] = useState([]);
+    const [selectedServeType, setSelectedServeType] = useState('');
+    const [selectedTag, setSelectedTag] = useState('');
+    const fetchTags = async () => {
+        const tags = await foodTagServices.getFoodTags();
+        setTags(tags)
+    }
+    const fetchServeTypes = async () => {
+        const types = await tableTypeServices.getTableTypes();
+        setServeTypes(types)
+    }
 
     const fetchCombos = async (id) => {
         const combos = await comboServices.getComboByRestaurant(id);
@@ -85,9 +106,39 @@ const ComboManagement = () => {
 
     useEffect(() => {
         fetchCombos(resId);
+        fetchTags();
+        fetchServeTypes()
     }, [])
 
-    const data = combos;
+    useEffect(() => {
+        setFilteredCombos(combos)
+    }, [combos]);
+
+    const onSearchCombo = (e) => {
+        const keyword = e.target.value.trim().toLowerCase().replace(/\s/g, '');
+        const filtered = combos.filter(combo => combo.name && combo.name.trim().toLowerCase().includes(keyword));
+        setFilteredCombos(filtered);
+    }
+
+
+    const onFilterByServe = (id) => {
+        const filtered = combos.filter(combo => combo.serveId === id);
+        setFilteredCombos(filtered);
+        setSelectedServeType(id);
+        setSelectedTag('')
+    };
+
+
+    const onFilterByTag = (id) => {
+        const filtered = combos.filter(combo => combo.comboTagId === id);
+        setFilteredCombos(filtered);
+        setSelectedTag(id);
+        setSelectedServeType('')
+    };
+
+    const data = filteredCombos;
+
+    console.log(combos)
 
     const [openDetail, setOpenDetail] = useState(false);
 
@@ -136,18 +187,62 @@ const ComboManagement = () => {
             <h2>Combo Management</h2>
             <hr/>
             <Row gutter={[16, 16]} justify="center">
-                <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8}>
+                <Col span={6}>
                     <Input
                         size={"large"}
-                        placeholder="Enter Combo name to find..."
+                        placeholder="Enter Food name to find..."
                         allowClear
-                        // onSearch={onSearchAcc}
+                        onChange={onSearchCombo}
                     />
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8} style={{textAlign: 'center'}}>
-
+                <Col span={12} className={'d-flex justify-content-around align-items-center'}>
+                    <h6 style={{width: '100%'}} className={'text-center'}>Filter by: </h6>
+                    <Select size={"large"}
+                            value={selectedServeType}
+                            style={{width: '100%'}}
+                            className={'px-1'}
+                            options={
+                                [
+                                    {
+                                        value: '',
+                                        label: 'Select Type of table',
+                                        key: 'select-type'
+                                    },
+                                    ...(Array.isArray(serveTypes) ? serveTypes.map(type => (
+                                        {
+                                            value: type.id,
+                                            label: type.name,
+                                            key: `type-${type.id}`
+                                        }
+                                    )) : [])
+                                ]
+                            }
+                            onChange={(selectedValue) => onFilterByServe(selectedValue)}
+                    />
+                    <Select size={"large"}
+                            value={selectedTag}
+                            style={{width: '100%'}}
+                            className={'px-1'}
+                            options={
+                                [
+                                    {
+                                        value: '',
+                                        label: 'Select Tag',
+                                        key: 'select-tag'
+                                    },
+                                    ...(Array.isArray(tags) ? tags.map(tag => (
+                                        {
+                                            value: tag.id,
+                                            label: tag.name,
+                                            key: `tag-${tag.id}`
+                                        }
+                                    )) : [])
+                                ]
+                            }
+                            onChange={(selectedId) => onFilterByTag(selectedId)}
+                    />
                 </Col>
-                <Col xs={24} sm={24} md={24} lg={8} xl={8} xxl={8} style={{textAlign: 'end'}}>
+                <Col span={6} style={{textAlign: 'end'}}>
                     <Link to={'create'}>
                         <button className={'btn btn-primary'}>
                             <PlusOutlined/> Create new Combo

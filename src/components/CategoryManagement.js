@@ -5,9 +5,22 @@ import Swal from "sweetalert2";
 import {Button, Col, Input, Modal, Row, Select, Space, Table} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 import categoryService from "../services/category-service";
+import {useSelector} from "react-redux";
 
 
 const CategoryManagement = () => {
+
+    const admin = useSelector(state => state.auth);
+
+    const token = admin.admData.token;
+
+    const axiosConfig = {
+        headers: {
+            Authorization: "Bearer " + token,
+        },
+        credentials: "true"
+    }
+
     const navigate = useNavigate();
 
     const [message, setMessage] = useState("");
@@ -56,7 +69,7 @@ const CategoryManagement = () => {
         }
         const fetchNewCat = async () => {
             try {
-                const res = await categoryService.createCategory(formData);
+                const res = await categoryService.createCategory(formData, axiosConfig);
                 if (res && res.name){
                     Swal.fire({
                         title: 'Category created Successfully!',
@@ -120,7 +133,7 @@ const CategoryManagement = () => {
 
         const fetchUpdateCat = async () => {
             try {
-                const res = await categoryService.updateCategory(id, formData);
+                const res = await categoryService.updateCategory(id, formData, axiosConfig);
                 if(res && res.name){
                     setMessage(`Category updated successfully!`);
                     Swal.fire({
@@ -156,7 +169,7 @@ const CategoryManagement = () => {
             });
 
             if (result.isConfirmed) {
-                await categoryService.deleteCategory(id);
+                await categoryService.deleteCategory(id, axiosConfig);
                 fetchCategories();
                 await Swal.fire({
                     title: 'Delete Successfully!',

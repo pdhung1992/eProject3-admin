@@ -34,10 +34,10 @@ const getCityDetails = async (id) => {
 
 }
 
-const createCity = async (formData) => {
+const createCity = async (formData, axiosConfig) => {
     try {
         const url = '/cities/create';
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }
     catch (error){
@@ -51,10 +51,10 @@ const createCity = async (formData) => {
     }
 }
 
-const updateCity = async (id, formData) => {
+const updateCity = async (id, formData, axiosConfig) => {
     try {
         const url = `/cities/update/${id}`;
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }
     catch (error){
@@ -68,10 +68,10 @@ const updateCity = async (id, formData) => {
     }
 }
 
-const deleteCity = async (id) => {
+const deleteCity = async (id, axiosConfig) => {
     try {
         const url = `/cities/delete/${id}`;
-        const res = await apiServices.delete(url);
+        const res = await apiServices.delete(url, axiosConfig);
         return res.data;
     }
     catch (error){

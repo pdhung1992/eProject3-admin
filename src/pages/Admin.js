@@ -6,7 +6,7 @@ import Sider from "antd/es/layout/Sider";
 import {Content, Header} from "antd/es/layout/layout";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, Route, Routes, useNavigate} from "react-router-dom";
-import { faCity, faUtensils, faList, faWineGlassEmpty, faUserTag, faCircleCheck, faGear, faUser, faPizzaSlice, faLayerGroup, faClipboardCheck, faStreetView, faShop, faTags, faPeopleGroup } from '@fortawesome/free-solid-svg-icons';
+import { faCity, faUtensils, faList, faWineGlassEmpty, faUserTag, faCircleCheck, faGear, faUser, faPizzaSlice, faLayerGroup, faClipboardCheck, faStreetView, faShop, faTags, faPeopleGroup, faListOl } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import authServices from "../services/auth-service";
 import {logout} from "../actions/authActions";
@@ -24,6 +24,11 @@ import FoodManagement from "../components/FoodManagement";
 import TableTypeManagement from "../components/TableTypeManagement";
 import ComboManagement from "../components/ComboManagement";
 import CreateCombo from "../components/CreateCombo";
+import StatusManagement from "../components/StatusManagement";
+import OrderManagement from "../components/OrderManagement";
+import OrderDetails from "../components/OrderDetails";
+import Reports from "../components/Reports";
+import EditCombo from "../components/EditCombo";
 
 
 const Admin = () => {
@@ -49,7 +54,8 @@ const Admin = () => {
         faStreetView,
         faShop,
         faTags,
-        faPeopleGroup
+        faPeopleGroup,
+        faListOl
     };
 
     const menuItems = permissions.map((permission, index) => (
@@ -84,7 +90,12 @@ const Admin = () => {
                     width={'18%'}
                 >
                     <div className="logo-container">
-                        <div className={'logo'}><span>Logo</span></div>
+                        <div className={'logo'}>
+                            {collapsed ? <h1>OC</h1>
+                                :
+                                <h1>OnlineCaterer</h1>
+                            }
+                        </div>
                     </div>
                     <Menu defaultSelectedKeys={['0']} mode={'inline'}>
                         {menuItems.map((item, index) => (
@@ -129,6 +140,11 @@ const Admin = () => {
                             <Route path={'servetypes'} element={<TableTypeManagement/>}/>
                             <Route path={'combos'} element={<ComboManagement/>}/>
                             <Route path={'combos/create'} element={<CreateCombo/>}/>
+                            <Route path={'combos/edit/:id'} element={<EditCombo/>}/>
+                            <Route path={'status'} element={<StatusManagement/>}/>
+                            <Route path={'orders'} element={<OrderManagement/>}/>
+                            <Route path={'orders/details/:id'} element={<OrderDetails/>}/>
+                            <Route path={'reports'} element={<Reports/>}/>
                         </Routes>
                     </Content>
                 </Layout>

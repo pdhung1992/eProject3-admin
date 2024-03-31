@@ -2,20 +2,20 @@
 
 import apiServices from "./api";
 
-const getAllAcc = async () => {
+const getAllAcc = async (axiosConfig) => {
     try {
         const url = 'accounts';
-        const res = await apiServices.get(url);
+        const res = await apiServices.get(url, axiosConfig);
         return res.data;
     }catch (e){
         console.log(e.message);
     }
 }
 
-const getAccDetails = async (id) => {
+const getAccDetails = async (id, axiosConfig) => {
     try {
         const url = `/accounts/details/${id}`;
-        const res = await apiServices.get(url);
+        const res = await apiServices.get(url, axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {
@@ -28,20 +28,20 @@ const getAccDetails = async (id) => {
     }
 }
 
-const createAccount = async (formData) => {
+const createAccount = async (formData, axiosConfig) => {
     try {
         const url = 'accounts/create';
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }catch (e){
         console.log(e.message);
     }
 }
 
-const updateAccount = async (id, formData) => {
+const updateAccount = async (id, formData, axiosConfig) => {
     try {
         const url = `/accounts/update/${id}`;
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {
@@ -54,10 +54,10 @@ const updateAccount = async (id, formData) => {
     }
 }
 
-const deleteAccount = async (id) => {
+const deleteAccount = async (id, axiosConfig) => {
     try {
         const url = `/accounts/delete/${id}`;
-        const res = await apiServices.delete(url);
+        const res = await apiServices.delete(url, axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {

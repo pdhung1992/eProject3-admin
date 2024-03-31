@@ -72,7 +72,7 @@ const AccountManagement = () => {
     const [accounts, setAccounts] = useState([]);
 
     const fetchAccount = async () => {
-        const accounts = await accountServices.getAllAcc();
+        const accounts = await accountServices.getAllAcc(axiosConfig);
         setAccounts(accounts);
     }
 
@@ -148,7 +148,8 @@ const AccountManagement = () => {
         "name": '',
         "address": '',
         "description": '',
-        "minimumDelivery": '',
+        "minimumDelivery": 50,
+        "prepaidRate": 0
     };
     const [newRes, setNewRes] = useState(initRes);
 
@@ -230,13 +231,6 @@ const AccountManagement = () => {
         e.preventDefault();
 
         if (isPasswordMatch){
-            const username = newAcc.username;
-            const fullname = newAcc.fullname;
-            const email = newAcc.email;
-            const password = newAcc.password;
-            const telephone = newAcc.telephone;
-            const roleId = selectedRole;
-            // const formData = {fullname, username, email, telephone, password, roleId};
 
             const formData = new FormData();
             formData.append('userName', newAcc.username);
@@ -250,6 +244,7 @@ const AccountManagement = () => {
             formData.append('resDescription', newRes.description);
             formData.append('resDeliveryHours', dlvHours);
             formData.append('resMinimumDelivery', newRes.minimumDelivery);
+            formData.append('prepaidRate', newRes.prepaidRate);
             formData.append('resCatId', selectedCategory);
             formData.append('resDistrictId', selectedDistrict);
             if(thumbnail && thumbnail.length > 0){
@@ -261,7 +256,7 @@ const AccountManagement = () => {
 
             const fetchNewAcc = async () => {
                 try {
-                    const res = await accountServices.createAccount(formData);
+                    const res = await accountServices.createAccount(formData, axiosConfig);
                     console.log(res)
                     if(res && res.username){
                         setMessage("Account created successfully!");
@@ -296,7 +291,7 @@ const AccountManagement = () => {
 
 
     const showDetailModal = async (id) => {
-        const detail = await accountServices.getAccDetails(id);
+        const detail = await accountServices.getAccDetails(id, axiosConfig);
         setAccDetails(detail);
         setOpenDetail(true);
     };
@@ -305,7 +300,7 @@ const AccountManagement = () => {
     };
 
     const showEditModal = async (id) => {
-        const detail = await accountServices.getAccDetails(id);
+        const detail = await accountServices.getAccDetails(id, axiosConfig);
         setAccDetails(detail);
         setSelectedRole(detail.roleId)
         setOpenEdit(true);
@@ -332,7 +327,7 @@ const AccountManagement = () => {
 
         const fetchUpdateAcc = async () => {
             try {
-                const res = await accountServices.updateAccount(id, formData);
+                const res = await accountServices.updateAccount(id, formData, axiosConfig);
                 console.log(res)
                 if(res && res.fullName){
                     setMessage("Account updated successfully!");
@@ -369,7 +364,7 @@ const AccountManagement = () => {
             });
 
             if (result.isConfirmed) {
-                await accountServices.deleteAccount(id);
+                await accountServices.deleteAccount(id, axiosConfig);
                 fetchAccount();
                 await Swal.fire({
                     title: 'Delete Successfully!',
@@ -665,20 +660,25 @@ const AccountManagement = () => {
                                 <Row>
                                     <Col span={8}>Delivery Hours</Col>
                                     <Col span={16}>
-                                        {/*<Input placeholder='Enter City name...'*/}
-                                        {/*       name='deliveryHours'*/}
-                                        {/*       value={restaurant.deliveryHours}*/}
-                                        {/*       onChange={onEdit}*/}
-                                        {/*/>*/}
                                         <TimePicker.RangePicker use12Hours format="h A" onChange={onChangeDlvTime}/>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col span={8}>Minimum Delivery</Col>
                                     <Col span={16}>
-                                        <Input placeholder='Enter City name...'
+                                        <Input placeholder='Enter Minimum delivery...'
                                                name='minimumDelivery'
                                                value={newRes.minimumDelivery}
+                                               onChange={onChangeNewRes}
+                                        />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col span={8}>Prepaid Rate</Col>
+                                    <Col span={16}>
+                                        <Input placeholder='Enter Prepaid rate...'
+                                               name='prepaidRate'
+                                               value={newRes.prepaidRate}
                                                onChange={onChangeNewRes}
                                         />
                                     </Col>

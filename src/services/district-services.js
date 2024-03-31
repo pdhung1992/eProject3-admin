@@ -48,10 +48,10 @@ const getDistrictDetails = async (id) => {
     }
 }
 
-const createDistrict = async (formData) => {
+const createDistrict = async (formData, axiosConfig) => {
     try {
         const url = `/districts/create`;
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }
     catch (error){
@@ -65,10 +65,10 @@ const createDistrict = async (formData) => {
     }
 }
 
-const updateDistrict = async (id, formData) => {
+const updateDistrict = async (id, formData, axiosConfig) => {
     try {
         const url = `/districts/update/${id}`;
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData,axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {
@@ -81,10 +81,10 @@ const updateDistrict = async (id, formData) => {
     }
 }
 
-const deleteDistrict = async (id) => {
+const deleteDistrict = async (id, axiosConfig) => {
     try {
         const url = `/districts/delete/${id}`;
-        const res = await apiServices.delete(url);
+        const res = await apiServices.delete(url, axiosConfig);
         return res.data;
     }
     catch (error){

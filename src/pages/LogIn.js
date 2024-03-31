@@ -102,6 +102,13 @@ const LogIn = () => {
                                         />
                                         <label htmlFor="floatingPassword">Password</label>
                                     </div>
+                                    {message && (
+                                        <div className="form-group">
+                                            <div className="alert alert-danger" role="alert">
+                                                Log in error: {message}
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="text-center">
                                         <button className={'btn btn-primary'} type={'submit'}>Log In</button>
                                     </div>

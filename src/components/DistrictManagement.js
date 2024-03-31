@@ -5,9 +5,21 @@ import {useEffect, useState} from "react";
 import cityServices from "../services/city-service";
 import Swal from "sweetalert2";
 import districtServices from "../services/district-services";
+import {useSelector} from "react-redux";
 
 
 const DistrictManagement = () => {
+
+    const admin = useSelector(state => state.auth);
+
+    const token = admin.admData.token;
+
+    const axiosConfig = {
+        headers: {
+            Authorization: "Bearer " + token,
+        },
+        credentials: "true"
+    }
 
     const navigate = useNavigate();
 
@@ -67,7 +79,7 @@ const DistrictManagement = () => {
         console.log(formData)
         const fetchNewDist = async () => {
             try {
-                const res = await districtServices.createDistrict(formData);
+                const res = await districtServices.createDistrict(formData, axiosConfig);
                 if (res && res.name){
                     Swal.fire({
                         title: 'District created Successfully!',
@@ -133,7 +145,7 @@ const DistrictManagement = () => {
 
         const fetchUpdateDistrict = async () => {
             try {
-                const res = await districtServices.updateDistrict(id, formData);
+                const res = await districtServices.updateDistrict(id, formData, axiosConfig);
                 if(res && res.name){
                     setMessage(`District updated successfully!`);
                     Swal.fire({
@@ -169,7 +181,7 @@ const DistrictManagement = () => {
             });
 
             if (result.isConfirmed) {
-                await districtServices.deleteDistrict(id);
+                await districtServices.deleteDistrict(id, axiosConfig);
                 fetchDistrict();
                 await Swal.fire({
                     title: 'Delete Successfully!',

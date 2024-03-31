@@ -32,10 +32,10 @@ const getCategoryDetails = async (id) => {
     }
 }
 
-const createCategory = async (formData) => {
+const createCategory = async (formData, axiosConfig) => {
     try {
         const url = `/categories/create`;
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {
@@ -48,10 +48,10 @@ const createCategory = async (formData) => {
     }
 }
 
-const updateCategory = async (id, formData) => {
+const updateCategory = async (id, formData, axiosConfig) => {
     try {
         const url = `/categories/update/${id}`;
-        const res = await apiServices.post(url, formData);
+        const res = await apiServices.post(url, formData, axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {
@@ -64,10 +64,10 @@ const updateCategory = async (id, formData) => {
     }
 }
 
-const deleteCategory = async (id) => {
+const deleteCategory = async (id, axiosConfig) => {
     try {
         const url = `/categories/delete/${id}`;
-        const res = await apiServices.delete(url);
+        const res = await apiServices.delete(url, axiosConfig);
         return res.data;
     }catch (error){
         if (error.response) {

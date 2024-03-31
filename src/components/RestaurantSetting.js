@@ -104,8 +104,8 @@ const RestaurantSetting = () => {
 
     const onEdit = (e) => {
         const { name, value } = e.target;
-        setRestaurant(prevDist => ({
-            ...prevDist,
+        setRestaurant(prevRes => ({
+            ...prevRes,
             [name]: value
         }));
     }
@@ -142,6 +142,7 @@ const RestaurantSetting = () => {
         formData.append('name', restaurant.name);
         formData.append('address', restaurant.address);
         formData.append('description', restaurant.description);
+        formData.append('prePaidRate', restaurant.prePaidRate);
         formData.append('catId', selectedCategory);
         formData.append('districtId', selectedDistrict);
         formData.append('deliveryHours', dlvHours);
@@ -181,6 +182,7 @@ const RestaurantSetting = () => {
         setOpenEdit(false);
     };
 
+
     return (
         <div className={'admin-content'}>
             <h2>Restaurant Settings</h2>
@@ -213,6 +215,10 @@ const RestaurantSetting = () => {
                 <Row>
                     <Col span={6}><h6>Minimum Delivery</h6></Col>
                     <Col span={18}><h6>{restaurant.minimumDelivery} persons</h6></Col>
+                </Row>
+                <Row>
+                    <Col span={6}><h6>Pre-paid Rate</h6></Col>
+                    <Col span={18}><h6>{restaurant.prePaidRate} %</h6></Col>
                 </Row>
                 <Row>
                     <Col span={6}><h6>Thumbnail</h6></Col>
@@ -372,11 +378,6 @@ const RestaurantSetting = () => {
                         <Row>
                             <Col span={8}>Delivery Hours</Col>
                             <Col span={16}>
-                                {/*<Input placeholder='Enter City name...'*/}
-                                {/*       name='deliveryHours'*/}
-                                {/*       value={restaurant.deliveryHours}*/}
-                                {/*       onChange={onEdit}*/}
-                                {/*/>*/}
                                 <TimePicker.RangePicker use12Hours format="h A" onChange={onChangeDlvTime}/>
                             </Col>
                         </Row>
@@ -386,6 +387,16 @@ const RestaurantSetting = () => {
                                 <Input placeholder='Enter City name...'
                                        name='minimumDelivery'
                                        value={restaurant.minimumDelivery}
+                                       onChange={onEdit}
+                                />
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col span={8}>Pre-paid rate</Col>
+                            <Col span={16}>
+                                <Input placeholder='Enter Pre-paid rate...'
+                                       name='prePaidRate'
+                                       value={restaurant.prePaidRate}
                                        onChange={onEdit}
                                 />
                             </Col>
